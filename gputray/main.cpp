@@ -69,10 +69,7 @@ public:
         if (NVML_SUCCESS != result)
         {
             printf("Failed to initialize NVML: %s\n", nvmlErrorString(result));
-
-            printf("Press ENTER to continue...\n");
-            getchar();
-            return 1;
+            throw;
         }
     }
 
@@ -99,6 +96,10 @@ int main(int argc, char *argv[])
     }
 
     QApplication::setQuitOnLastWindowClosed(false);
+    QCoreApplication::setOrganizationName("LifeHackSoft");
+    QCoreApplication::setOrganizationDomain("lifehacksoft.com");
+    QCoreApplication::setApplicationName("GPU Tray");
+
 
     NVML nvml;
 

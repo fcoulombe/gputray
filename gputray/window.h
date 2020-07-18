@@ -66,6 +66,7 @@ class QLabel;
 class QLineEdit;
 class QMenu;
 class QPushButton;
+class QSettings;
 class QSpinBox;
 class QTextEdit;
 QT_END_NAMESPACE
@@ -92,6 +93,8 @@ private slots:
     void processNvidia();
 
 private:
+    void createSettings();
+    void createOptionsGroupBox();
     void createIconGroupBox();
     void createMessageGroupBox();
     void createActions();
@@ -99,8 +102,16 @@ private:
     int initNvidia();
     int shutdownNvidia();
     void ToggleVisibility();
-    //int runNvidia();
+    void ToggleStartOnStartup();
+
+    bool isStartOnStartup ;
+    QSettings *settings;
+
     QTimer *nvidiaTimer = nullptr;
+
+    QGroupBox *optionsGroupBox;
+    QLabel *optionsLabel;
+    QCheckBox *showOptionsCheckBox;
 
     QGroupBox *iconGroupBox;
     QLabel *iconLabel;

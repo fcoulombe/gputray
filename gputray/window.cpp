@@ -66,6 +66,7 @@
 #include <QTextEdit>
 #include <QVBoxLayout>
 #include <QMessageBox>
+#include <QSettings>
 #include <QTimer>
 
 
@@ -132,7 +133,8 @@ void Window::processNvidia()
 //! [0]
 Window::Window()
 {
-
+    createSettings();
+    createOptionsGroupBox();
     createIconGroupBox();
     createMessageGroupBox();
 
@@ -143,12 +145,14 @@ Window::Window()
 
     connect(showMessageButton, &QAbstractButton::clicked, this, &Window::showMessage);
     connect(showIconCheckBox, &QAbstractButton::toggled, trayIcon, &QSystemTrayIcon::setVisible);
+    connect(showOptionsCheckBox, &QAbstractButton::toggled, this, &Window::ToggleStartOnStartup);
     connect(iconComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &Window::setIcon);
 
     connect(trayIcon, &QSystemTrayIcon::messageClicked, this, &Window::messageClicked);
     connect(trayIcon, &QSystemTrayIcon::activated, this, &Window::iconActivated);
 
     QVBoxLayout *mainLayout = new QVBoxLayout;
+    mainLayout->addWidget(optionsGroupBox);
     mainLayout->addWidget(iconGroupBox);
     //mainLayout->addWidget(messageGroupBox);
     setLayout(mainLayout);
@@ -184,13 +188,13 @@ void Window::closeEvent(QCloseEvent *event)
         return;
     }
 #endif
-    if (trayIcon->isVisible()) {
-        QMessageBox::information(this, tr("GPUtray"),
-                                 tr("The program monitors the state of your gpu and renders it in the tray"));
+    //if (trayIcon->isVisible())
+    {
+        /*QMessageBox::information(this, tr("GPUtray"),
+                                 tr("The program monitors the state of your gpu and renders it in the tray"));*/
         hide();
         event->ignore();
     }
-    shutdownNvidia();
 }
 //! [2]
 
@@ -256,11 +260,36 @@ void Window::showMessageCustom(QString title, QString text)
 //! [6]
 void Window::messageClicked()
 {
-    QMessageBox::information(nullptr, tr("GPUtray"),
+    /*QMessageBox::information(nullptr, tr("GPUtray"),
                              tr("Sorry, I already gave what help I could.\n"
-                                "Maybe you should try asking a human?"));
+                                "Maybe you should try asking a human?"));*/
 }
 //! [6]
+
+void Window::createSettings()
+{
+    settings = new QSettings("LifeHackSoft", "GPU Tray");
+    isStartOnStartup = settings->value("startOnStartup").toBool();
+}
+
+void Window::createOptionsGroupBox()
+{
+    optionsGroupBox = new QGroupBox(tr("GPUTray Options"));
+
+    optionsLabel = new QLabel("start on startup:");
+
+
+    showOptionsCheckBox = new QCheckBox(tr("start on startup"));
+    showOptionsCheckBox->setChecked(isStartOnStartup);
+
+    QHBoxLayout *optionsLayout = new QHBoxLayout;
+    optionsLayout->addWidget(optionsLabel);
+
+    optionsLayout->addStretch();
+    optionsLayout->addWidget(showOptionsCheckBox);
+    optionsGroupBox->setLayout(optionsLayout);
+    //optionsGroupBox->setVisible(false);
+}
 
 void Window::createIconGroupBox()
 {
@@ -361,6 +390,12 @@ void Window::ToggleVisibility()
     {
         QWidget::showNormal();
     }
+}
+
+void Window::ToggleStartOnStartup()
+{
+    isStartOnStartup = !isStartOnStartup;
+    settings->setValue("startOnStartup", isStartOnStartup);
 }
 
 void Window::createActions()
